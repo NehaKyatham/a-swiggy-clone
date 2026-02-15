@@ -55,6 +55,25 @@ pipeline {
                 sh "trivy fs . > trivyfs.txt"
             }
         }
+        
+
+       stage('Docker Build & Push') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'dockerhub-token', toolName: 'docker') {
+                        sh "docker build -t swiggy-clone ."
+                        sh "docker tag swiggy-clone nehakyatham/swiggy-clone:latest"
+                        sh "docker push nehakyatham/swiggy-clone:latest"
+                    }
+                }
+            }
+        }
+
+        stage('TRIVY Image Scan') {
+            steps {
+                sh "trivy image nehakyatham/swiggy-clone:latest > trivyimage.txt"
+            }
+        }
     }
 }
 
