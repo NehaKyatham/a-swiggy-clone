@@ -59,7 +59,7 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: ‘dockerhub-token’ , toolName: 'docker') {
+                    withDockerRegistry(credentialsId: 'dockerhub-token' , toolName: 'docker') {
                         sh "docker build -t swiggy-clone ."
                         sh "docker tag swiggy-clone nehakyatham/swiggy-clone:latest"
                         sh "docker push nehakyatham/swiggy-clone:latest"
