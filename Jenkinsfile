@@ -26,7 +26,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube-Servers') {
+                withSonarQubeEnv('SonarQube-Server') {
                     sh """
                         ${SCANNER_HOME}/bin/sonar-scanner \
                         -Dsonar.projectName=Swiggy-CI \
@@ -73,20 +73,5 @@ pipeline {
                 sh "trivy image nehakyatham/swiggy-clone:latest > trivyimage.txt"
             }
         }
-        stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    dir('Kubernetes') {
-                        kubeconfig(credentialsId: 'kubernetes', serverUrl: '') {
-                            sh "kubectl delete --all pods"
-                            sh "kubectl apply -f deployment.yml"
-                            sh "kubectl apply -f service.yml"
-                        }
-                    }
-                }
-            }
-        }
-
     }
 }
-
