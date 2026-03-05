@@ -18,9 +18,9 @@ pipeline {
             }
         }
 
-        stage('Checkout from Git') {
+        stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/NehaKyatham/a-swiggy-clone'
+                git branch: 'main', url: 'https://github.com/nehakyatham/a-swiggy-clone.git'
             }
         }
 
@@ -50,7 +50,7 @@ pipeline {
             }
         }
 
-        stage('TRIVY FS SCAN') {
+        stage('Trivy FS Scan') {
             steps {
                 sh "trivy fs . > trivyfs.txt"
             }
@@ -59,7 +59,7 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: 'dockerhub-token', toolName: 'docker') {
+                    withDockerRegistry(credentialsId: ‘dockerhub-token’ , toolName: 'docker') {
                         sh "docker build -t swiggy-clone ."
                         sh "docker tag swiggy-clone nehakyatham/swiggy-clone:latest"
                         sh "docker push nehakyatham/swiggy-clone:latest"
@@ -68,10 +68,25 @@ pipeline {
             }
         }
 
-        stage('TRIVY Image Scan') {
+        stage('Trivy Image Scan') {
             steps {
                 sh "trivy image nehakyatham/swiggy-clone:latest > trivyimage.txt"
             }
         }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    dir('Kubernetes') {
+                        kubeconfig(credentialsId: 'kubernetes', serverUrl: '') {
+                            sh "kubectl delete --all pods"
+                            sh "kubectl apply -f deployment.yml"
+                            sh "kubectl apply -f service.yml"
+                        }
+                    }
+                }
+            }
+        }
     }
 }
+
