@@ -3,7 +3,7 @@ pipeline {
     agent any
 
     tools {
-        jdk 'jdk17'
+        jdk 'jdk21'
         nodejs 'node16'
     }
 
@@ -75,19 +75,6 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    dir('Kubernetes') {
-                        kubeconfig(credentialsId: 'kubernetes', serverUrl: '') {
-                            sh "kubectl delete --all pods"
-                            sh "kubectl apply -f deployment.yml"
-                            sh "kubectl apply -f service.yml"
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 
